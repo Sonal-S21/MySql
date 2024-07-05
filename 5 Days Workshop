@@ -1,0 +1,285 @@
+-- Create the database
+CREATE DATABASE company_db;
+
+-- Use the newly created database
+USE company_db;
+
+-- Create the departments table
+CREATE TABLE departments (
+    deptno INT PRIMARY KEY,
+    dname VARCHAR(50),
+    loc VARCHAR(50));
+
+-- Insert data into the departments table
+INSERT INTO departments (deptno, dname, loc) VALUES
+(10, 'ACCOUNTING', 'NEW YORK'),
+(20, 'RESEARCH', 'DALLAS'),
+(30, 'SALES', 'CHICAGO'),
+(40, 'OPERATIONS', 'BOSTON');
+
+-- Create the employees table
+CREATE TABLE employees (
+    empno INT PRIMARY KEY,
+    ename VARCHAR(50),
+    job VARCHAR(50),
+    mgr INT,
+    hiredate DATE,
+    sal INT,
+    comm INT,
+    deptno INT,
+    FOREIGN KEY (deptno) REFERENCES departments(deptno));
+
+-- Insert data into the employees table
+INSERT INTO employees (empno, ename, job, mgr, hiredate, sal, comm, deptno) VALUES
+(7369, 'SMITH', 'CLERK', 7902, '1980-12-17', 800, NULL, 20),
+(7499, 'ALLEN', 'SALESMAN', 7698, '1981-02-20', 1600, 300, 30),
+(7521, 'WARD', 'SALESMAN', 7698, '1981-02-22', 1250, 500, 30),
+(7566, 'JONES', 'MANAGER', 7839, '1981-04-02', 2975, NULL, 20),
+(7654, 'MARTIN', 'SALESMAN', 7698, '1981-09-28', 1250, 1400, 30),
+(7698, 'BLAKE', 'MANAGER', 7839, '1981-05-01', 2850, NULL, 30),
+(7782, 'CLARK', 'MANAGER', 7839, '1981-06-09', 2450, NULL, 10),
+(7788, 'SCOTT', 'ANALYST', 7566, '1987-04-19', 3000, NULL, 20),
+(7839, 'KING', 'PRESIDENT', NULL, '1981-11-17', 5000, NULL, 10),
+(7844, 'TURNER', 'SALESMAN', 7698, '1981-09-08', 1500, 0, 30),
+(7876, 'ADAMS', 'CLERK', 7788, '1987-05-23', 1100, NULL, 20),
+(7900, 'JAMES', 'CLERK', 7698, '1981-12-03', 950, NULL, 30),
+(7902, 'FORD', 'ANALYST', 7566, '1981-12-03', 3000, NULL, 20),
+(7934, 'MILLER', 'CLERK', 7782, '1982-01-23', 1300, NULL, 10);
+
+-- query
+select ename,deptno
+from employees
+where job='manager' and deptno=10;
+
+select sal,deptno
+from employees
+where sal between (1250 and 4000) and deptno=10;
+
+select ename,job,deptno
+from employees
+where job in('clerk','salesman') and deptno in(10,30) and sal > 1800;
+
+select ename,deptno
+from employees
+where deptno not in(10,40);
+
+select *,sal*12 as anualsalary
+from employees
+where deptno=30 and job='salesman' and sal*12 > 10000;
+
+select ename,sal,sal*12 as anualsalary
+from employees
+where deptno=20 and sal > 1100 and sal*12 > 12000;
+
+select ename,hiredate
+from employees
+where hiredate between '1981-01-01' and '1987-12-31';
+
+select ename,sal,hiredate
+from employees
+where hiredate between ('2017-01-01' and '2017-12-31') and deptno=20 and sal > 2000;
+
+select * from employees;
+
+select ename,sal 
+from employees
+where sal not between 1000 and 3000;
+
+select ename,sal as max_salary
+from employees
+where sal=(
+select max(sal)
+from employees);
+
+select ename,max(sal) as max_salary
+from employees
+where sal group by ename;
+
+select ename
+from employees
+where ename like 's%';
+
+select ename
+from employees
+where ename like '%a';
+
+select ename
+from employees
+where ename like '_m%';
+
+select ename,hiredate
+from employees
+where hiredate like '%-04-%';
+
+select ename
+from employees
+where ename like '%a%a%';
+
+select count(ename)
+from employees
+where ename like '%e%';
+
+select * from departments;
+
+select avg(sal),sum(sal),count(ename),max(sal)
+from employees
+where job='president';
+
+select deptno,max(sal)
+from employees
+group by deptno;
+
+select job,deptno,max(sal)
+from employees
+group by job,deptno;
+
+select count(ename),job
+from employees
+where ename like '%a%'
+group by job;
+
+select count(ename),job
+from employees
+where ename like '%a%'
+group by job
+order by job;
+
+select count(ename),job
+from employees
+where ename like '%a%'
+group by job
+order by job desc;
+
+select deptno,count(*)
+from employees
+group by deptno
+having count(deptno)>=3;
+
+select ename
+from employees
+where sal=
+(select sal
+from employees
+where ename='miller');
+
+select ename,deptno
+from employees
+where deptno=
+(select deptno
+from employees
+where ename='smith');
+
+select ename,hiredate
+from employees
+where hiredate >
+(select hiredate
+from employees
+where ename='jones');
+
+select ename,sal,deptno
+from employees
+where sal > 2000 and deptno =
+(select deptno
+from employees
+where ename='james');
+
+select * 
+from employees
+where sal > (select sal
+from employees
+where ename='smith') and
+sal < (select sal
+from employees
+where ename='king');
+
+select ename 
+from employees
+where deptno=
+(select deptno
+from employees
+where ename='james') and sal >
+(select sal
+from employees
+where ename = 'smith') and job =
+(select job
+from employees
+where ename='miller') and hiredate >
+(select hiredate
+from employees
+where ename='martin');
+
+select dname
+from departments
+where deptno= (select deptno
+from employees
+where ename='miller');
+
+select count(ename)
+from employees
+where deptno=
+(select deptno
+from departments
+where dname='accounting');
+
+select * 
+from employees 
+where job=
+(select job
+from employees
+where ename='miller') and deptno=
+(select deptno
+from departments
+where loc='new york');
+
+select ename from employees where sal > any (select sal from employees where job='salesman');
+
+select * from employees where hiredate > all (select hiredate from employees where job='clerk');
+
+select ename,sal from employees where sal < any (select sal from employees where job='manager');
+
+select ename,hiredate from employees where hiredate < all (select hiredate from employees where job = 'manager');
+
+select ename from employees where hiredate > all (select hiredate from employees where job='manager') and sal > all (select sal from employees where job='clerks');
+
+select * from employees where job='clerk' and hiredate < any(select hiredate from employees where job='salesman');
+
+select * from employees where deptno in(select deptno from departments where dname in('accounting','sales'));
+
+select dname from departments where deptno in(select deptno from employees where ename in ('smith', 'king' ,'miller'));
+
+select * from employees where deptno in (select deptno from departments where loc='new york' or loc ='chicago');
+
+select ename,deptno from employees where hiredate > all(select hiredate from employees where deptno=10);
+
+select max(sal) from employees where sal < (select max(sal) from employees where sal <  (select max(sal) from employees));
+
+select min(sal) from employees where sal > (select min(sal) from employees);
+
+select ename,d.deptno from employees e cross join departments d;
+
+select e.ename,d.dname from employees e inner join departments d on e.deptno=d.deptno;
+
+select e.ename,d.loc from employees e inner join departments d on e.job='manager' and e.deptno=d.deptno;
+
+select ename, sal,d.dname from employees e inner join departments d on d.dname='accounting' and e.deptno=d.deptno;
+
+select d.dname,e.job,e.ename from employees e inner join departments d where job like 's%' and d.dname like 's%' and e.deptno=d.deptno ; 
+
+select * from employees e right join departments d on e.deptno=d.deptno;
+
+select * from employees e left join departments d on e.deptno=d.deptno union all select * from employees e right join departments d on e.deptno=d.deptno;
+
+select * from employees e1 join employees e2 on e1.mgr=e2.empno;
+-- w/o using join
+select * from employees e1, employees e2 where e1.mgr=e2.empno; 
+
+select e1.ename,e1.sal,e2.ename,e2.sal from employees e1 join employees e2 on e1.mgr=e2.empno;
+
+select e1.ename,e2.ename,e1.deptno from employees e1 join employees e2 on e1.mgr=e2.empno and e1.job='clerk';
+
+select e1.ename,e2.job from employees e1 join employees e2 on e1.mgr=e2.empno and e2.job='analyst';
+
+select e1.ename,e1.job,e2.ename,e2.job from employees e1 join employees e2 on e1.job=e2.job and e1.mgr=e2.empno;
+
+select e1.ename,e1.sal,e2.ename,e2.sal from employees e1 join employees e2 on e2.sal > e1.sal and e1.mgr=e2.empno;
+
